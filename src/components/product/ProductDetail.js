@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Card, Button, InputNumber, Input } from 'antd';
 import data from '../../data/productData.json'
 class ProductDetail extends React.Component {

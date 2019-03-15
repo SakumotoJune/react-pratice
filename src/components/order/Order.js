@@ -7,7 +7,7 @@ import adData from '../../data/userData.json';
 class Order extends React.Component {
     constructor(props) {
         super(props)
-        this.orderTableColumns = [{
+        this.TableColumns = [{
             title: "商品图片",
             dataIndex: 'image',
             render: (item) => (
@@ -97,7 +97,7 @@ class Order extends React.Component {
                     <Button><Link to={'/address'}></Link>添加地址</Button>
                 </div>
                 <div className="productList">
-                    <Table columns={this.orderTableColumns} dataSource={this.state.dataSource}></Table>
+                    <Table columns={this.TableColumns} dataSource={this.state.dataSource}></Table>
                 </div>
                 <div className="order">
                     {this.state.isChoose ?
