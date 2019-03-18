@@ -28,6 +28,12 @@ class Address extends React.Component {
                         <a className="edit-data" onClick={() => { this.editData(record) }}>修改</a>
                     </div>
                 )
+            }, {
+                title: '',
+                dataIndex: '',
+                render: () => (
+                    <Button>设为默认地址</Button>
+                )
             }
         ]
         this.options = [{
@@ -83,10 +89,15 @@ class Address extends React.Component {
                 phone: String,
                 address: String,
                 addPrefix: String,
-                phonePrefix: String
+                phonePrefix: '+86 '
             },
-            isCheck: true
-
+            isCheck: true,
+            isEmpty: {
+                isAddress:true,
+                isPhone:true,
+                isName:true
+                
+            }
         }
     }
     componentDidMount = () => {
@@ -118,12 +129,18 @@ class Address extends React.Component {
     addAddress = () => {
         var storage = window.sessionStorage
         console.log(this.state.item)
-        console.log(this.state.dataSource)
-        this.setState({
-            dataSource: [...this.state.dataSource, this.state.item]
-        }, () => {
-            storage.setItem("address", JSON.stringify(this.state.dataSource))
-        })
+        //console.log(this.state.dataSource)
+        var isEmpty = true
+        if(this.state.isEmpty.isAddress&&this.state.isEmpty.isName&&this.state.isEmpty.isPhone){
+            isEmpty = false
+        }
+        if (this.state.isCheck && !isEmpty) {
+            this.setState({
+                dataSource: [...this.state.dataSource, this.state.item]
+            }, () => {
+                storage.setItem("address", JSON.stringify(this.state.dataSource))
+            })
+        }
 
     }
     nameChange = (e) => {
@@ -132,6 +149,10 @@ class Address extends React.Component {
             item: {
                 ...this.state.item,
                 name: e.target.value
+            },
+            isEmpty: {
+                ...isEmpty,
+                isName: false
             }
         })
     }
@@ -140,9 +161,13 @@ class Address extends React.Component {
             this.setState({
                 item: {
                     ...this.state.item,
-                    phone: e.target.value
+                    phone: this.state.item.phonePrefix + e.target.value
                 },
-                isCheck: true
+                isCheck: true,
+                isEmpty: {
+                    ...isEmpty,
+                    isPhone: false
+                }
             })
         } else {
             this.setState({
@@ -155,6 +180,10 @@ class Address extends React.Component {
             item: {
                 ...this.state.item,
                 address: e.target.value
+            },
+            isEmpty: {
+                ...isEmpty,
+                isAddress: false
             }
         })
     }
@@ -168,6 +197,7 @@ class Address extends React.Component {
         })
     }
     editPhonePrefix = (value) => {
+        console.log(value)
         this.setState({
             item: {
                 ...this.state.item,
@@ -194,13 +224,13 @@ class Address extends React.Component {
                     <Input style={{ width: 200 }} onChange={this.nameChange}></Input>
                     <br />
                     <span>电话号码：</span>
-                    <Select defaultValue="+86" style={{ width: 150 }} onChange={this.editPhonePrefix}>
-                        <Option value="+86">中国大陆+86</Option>
-                        <Option value="+852">香港+852</Option>
-                        <Option value="+853">澳门+853</Option>
-                        <Option value="+886">台湾+886</Option>
-                        <Option value="+81">日本+81</Option>
-                        <Option value="+44">英国+44</Option>
+                    <Select defaultValue="+86 " style={{ width: 150 }} onChange={this.editPhonePrefix}>
+                        <Option value="+86 ">中国大陆+86</Option>
+                        <Option value="+852 ">香港+852</Option>
+                        <Option value="+853 ">澳门+853</Option>
+                        <Option value="+886 ">台湾+886</Option>
+                        <Option value="+81 ">日本+81</Option>
+                        <Option value="+44 ">英国+44</Option>
                     </Select>
                     <Input style={{ width: 180 }} onChange={this.phoneChange}></Input>
                     {this.state.isCheck ? '' : <span>格式错误</span>}

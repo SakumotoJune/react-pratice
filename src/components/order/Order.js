@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Button, InputNumber, List, Card } from 'antd';
-import data from '../../data/productData.json';
-import adData from '../../data/userData.json';
+import { Table, Button, Modal, List, Card } from 'antd';
+//import data from '../../data/productData.json';
+//import adData from '../../data/userData.json';
 
 class Order extends React.Component {
     constructor(props) {
@@ -24,25 +24,23 @@ class Order extends React.Component {
             dataIndex: 'amount',
             key: '',
             render: (amount) => (
-                <InputNumber
-                    defaultValue={amount}
-                    onChange={this.onChange}>
-                </InputNumber>
+                <span>{amount}</span>
             )
         }, {
             title: "金额",
             dataIndex: '',
             key: '',
             render: (record) => {
-                <span>{record.amount * record.price}</span>
+                return (<span>{record.amount * record.price}</span>)
             }
         }];
 
         this.state = {
             dataSource: [],
-            addressData: adData,
+            addressData: [],
             address: {},
-            isChoose: false
+            isChoose: false,
+            total: Number
 
         }
         console.log(this.state.addressData)
@@ -52,22 +50,48 @@ class Order extends React.Component {
     }
     showTable = () => {
         const str = window.sessionStorage.getItem("order")
-        var temp = [];
+        const str2 = window.sessionStorage.getItem("address")
+        var total = 0
+        console.log(window.sessionStorage)
         if (str) {
-            temp = JSON.parse(str)
+            const data = JSON.parse(str)
+            this.setState({
+                dataSource: data
+            })
+            data.forEach(item => {
+                total = total + item.amount * item.price
+            })
+            this.setState({
+                total: total
+            })
         }
-        this.setState({
-            dataSource: temp
-        })
+
+        if (str2) {
+            this.setState({
+                addressData: JSON.parse(str2)
+            })
+        }
     }
-    onClick =(ad)=>{
+    onClick = (ad) => {
         //console.log(ad)
         this.setState({
             address: ad,
             isChoose: true
         })
     }
-
+    orderSuccess = () =>{
+        Modal.success({
+            title:'This is a notification message',
+            content:(
+                <div>
+                    <p>You have submitted your order successfully</p>
+                </div>
+            ),
+            onOk(){
+                window.location.href = '/product'
+            }
+        })
+    }
     render() {
         return (
             <div>
@@ -81,14 +105,16 @@ class Order extends React.Component {
                         renderItem={
                             item => (
                                 <List.Item
-                                    onClick={()=>{this.onClick(item)}}
+                                    onClick={() => { this.onClick(item) }}
                                 >
                                     <button>
                                         <Card
-                                            title={`收件人：${item.recipient}`}
+                                            title={`收件人：${item.name}`}
                                             hoverable
                                         >
-                                            {`地址：${item.address}   电话：${item.phone}`}
+                                            {`地址：${item.addPrefix}   ${item.address}`}
+                                            <br />
+                                            {`电话：${item.phone}`}
                                         </Card>
                                     </button>
                                 </List.Item>)
@@ -101,11 +127,12 @@ class Order extends React.Component {
                 </div>
                 <div className="order">
                     {this.state.isChoose ?
-                        <Card title={this.state.address.recipient}>
-                        {`地址：${this.state.address.address}   电话：${this.state.address.phone}`}
+                        <Card title={this.state.address.name}>
+                            {`地址：${this.state.address.address}   电话：${this.state.address.phone}`}
                         </Card>
                         : ''}
-                    <Button>确定订单</Button>
+                    <span className="total-amount">{`应付款：${this.state.total}`}</span>
+                    <Button onClick={this.orderSuccess}>确定订单</Button>
                 </div>
             </div>
         );

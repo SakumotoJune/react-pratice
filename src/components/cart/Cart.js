@@ -52,7 +52,7 @@ class Cart extends React.Component {
         const storage = window.sessionStorage;
         const cartData = new Array;
         const tempId = new Array;
-        const tempValue = new Array
+        const tempValue = new Array;
         //console.log(storage.length)
         for (var i = 0, len = storage.length; i < len; i++) {
             var key = storage.key(i)
@@ -96,6 +96,7 @@ class Cart extends React.Component {
         storage.setItem("order",JSON.stringify(this.state.orderProduct))
         console.log(storage)
     }
+    
     
     render() {
         const rowSelection = {
