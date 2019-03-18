@@ -94,7 +94,7 @@ class Order extends React.Component {
                                 </List.Item>)
                         }
                     ></List>
-                    <Button><Link to={'/address'}></Link>添加地址</Button>
+                    <Button><Link to={'/address'}>添加地址</Link></Button>
                 </div>
                 <div className="productList">
                     <Table columns={this.TableColumns} dataSource={this.state.dataSource}></Table>

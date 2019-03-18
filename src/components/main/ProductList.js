@@ -4,7 +4,7 @@ import { Col } from 'antd';
 
 const ProductList = (props) => {
     const itemsProduct = props.dataProducts.map(function (item) {
-        return <Col span={6}>
+        return <Col span={4}>
             <ProductItem
                 id={item.id}
                 name={item.name}

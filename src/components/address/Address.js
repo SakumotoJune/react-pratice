@@ -1,14 +1,17 @@
 import React from 'react';
-import { Input, Table, Button } from 'antd'
+import { Input, Table, Button, Cascader, Select } from 'antd'
 //import data from '../../data/userData.json'
-
+const Option = Select.Option
 class Address extends React.Component {
     constructor(props) {
         super(props)
         this.tableColumns = [
             {
                 title: "收货人",
-                dataIndex: "recipient"
+                dataIndex: "name"
+            }, {
+                title: "所在地区",
+                dataIndex: "addPrefix"
             }, {
                 title: "详细地址",
                 dataIndex: "address"
@@ -19,18 +22,70 @@ class Address extends React.Component {
                 title: "操作",
                 dataIndex: '',
                 render: (record) => (
-                    <a className="edit-data" onClick={() => { this.deleteData(record) }}>删除</a>
+                    <div>
+                        <a className="delete-data" onClick={() => { this.deleteData(record) }}>删除</a>
+                        <span>|</span>
+                        <a className="edit-data" onClick={() => { this.editData(record) }}>修改</a>
+                    </div>
                 )
             }
         ]
+        this.options = [{
+            value: '北京',
+            label: '北京',
+            children: [{
+                value: '北京市',
+                label: '北京市',
+                children: [{
+                    value: '东城区',
+                    label: '东城区'
+                }, {
+                    value: '西城区',
+                    label: '西城区',
+                }, {
+                    value: '朝阳区',
+                    label: '朝阳区'
+                }, {
+                    value: '丰台区',
+                    label: '丰台区'
+                }]
+            }]
+        }, {
+            value: '河南省',
+            label: '河南省',
+            children: [{
+                value: '许昌市',
+                label: '许昌市',
+                children: [{
+                    value: '魏都区',
+                    label: '魏都区'
+                }, {
+                    value: '建安区',
+                    label: '建安区'
+                }]
+            }, {
+                value: '平顶山市',
+                label: '平顶山市',
+                children: [{
+                    value: '新华区',
+                    label: '新华区'
+                }, {
+                    value: '宝丰县',
+                    label: '宝丰县'
+                }]
+            }]
+        }]
+
         this.state = {
             dataSource: [],
             item: {
                 name: String,
                 phone: String,
-                address: String
+                address: String,
+                addPrefix: String,
+                phonePrefix: String
             },
-            isCheck:true
+            isCheck: true
 
         }
     }
@@ -40,9 +95,12 @@ class Address extends React.Component {
     showTable = () => {
         var storage = window.sessionStorage
         var addressData = JSON.parse(storage.getItem("address"))
-        this.setState({
-            dataSource: addressData
-        })
+        if (addressData) {
+            this.setState({
+                dataSource: addressData
+            })
+        }
+
     }
     deleteData = (record) => {
         var storage = window.sessionStorage
@@ -59,53 +117,93 @@ class Address extends React.Component {
     }
     addAddress = () => {
         var storage = window.sessionStorage
+        console.log(this.state.item)
+        console.log(this.state.dataSource)
         this.setState({
             dataSource: [...this.state.dataSource, this.state.item]
         }, () => {
             storage.setItem("address", JSON.stringify(this.state.dataSource))
         })
-        
+
     }
-    nameChange = (value) => {
+    nameChange = (e) => {
+        console.log(e.target.value)
         this.setState({
-            name:value
+            item: {
+                ...this.state.item,
+                name: e.target.value
+            }
         })
     }
-    phoneChange = (value) => {
-        if (/^1[34578]\d{9}$/.test(value)){
+    phoneChange = (e) => {
+        if (/^1[34578]\d{9}$/.test(e.target.value)) {
             this.setState({
-                phone:value,
-                isCheck:true
+                item: {
+                    ...this.state.item,
+                    phone: e.target.value
+                },
+                isCheck: true
             })
-        }else{
+        } else {
             this.setState({
-                isCheck:false
+                isCheck: false
             })
         }
     }
-    addressChange = (value) => {
+    addressChange = (e) => {
         this.setState({
-            address:value
+            item: {
+                ...this.state.item,
+                address: e.target.value
+            }
+        })
+    }
+    editAddPrefix = (value) => {
+        console.log(value)
+        this.setState({
+            item: {
+                ...this.state.item,
+                addPrefix: value
+            }
+        })
+    }
+    editPhonePrefix = (value) => {
+        this.setState({
+            item: {
+                ...this.state.item,
+                phonePrefix: value
+            }
         })
     }
     render() {
         return (
-            <div>
+            <div className="address">
                 <br />
                 <br />
                 <br />
                 <div className="add">
                     <span>地址信息：</span>
-                    <Input style={{ width: 300 }}
+                    <Cascader options={this.options} placeholder="Please select" onChange={this.editAddPrefix}></Cascader>
+                    <br />
+                    <span>详细地址：</span>
+                    <Input style={{ width: 300, height: 100 }}
                         onChange={this.addressChange}
                     ></Input>
                     <br />
                     <span>收货人：</span>
-                    <Input style={{ width: 300 }} onChange={this.nameChange}></Input>
+                    <Input style={{ width: 200 }} onChange={this.nameChange}></Input>
                     <br />
                     <span>电话号码：</span>
-                    <Input style={{ width: 300 }} onChange={this.phoneChange}></Input>
-                    {this.state.isCheck?'':<span>格式有误</span>}
+                    <Select defaultValue="+86" style={{ width: 150 }} onChange={this.editPhonePrefix}>
+                        <Option value="+86">中国大陆+86</Option>
+                        <Option value="+852">香港+852</Option>
+                        <Option value="+853">澳门+853</Option>
+                        <Option value="+886">台湾+886</Option>
+                        <Option value="+81">日本+81</Option>
+                        <Option value="+44">英国+44</Option>
+                    </Select>
+                    <Input style={{ width: 180 }} onChange={this.phoneChange}></Input>
+                    {this.state.isCheck ? '' : <span>格式错误</span>}
                     <br />
                     <Button onClick={this.addAddress}>新增地址</Button>
                 </div>
